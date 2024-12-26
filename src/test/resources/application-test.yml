@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:test  # H2 메모리 데이터베이스 사용
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update  # 데이터베이스 스키마 자동 업데이트
+    show-sql: true  # SQL 로그 출력
+  h2:
+    console:
+      enabled: true  # H2 콘솔 활성화
