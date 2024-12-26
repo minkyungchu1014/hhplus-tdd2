@@ -1,5 +1,6 @@
 package interfaces.api.lecture;
 
+
 import hhplus.tdd.application.lecture.LectureFacade;
 import hhplus.tdd.domain.lecture.Lectures;
 import hhplus.tdd.infrastructure.lecture.ORMRepository;

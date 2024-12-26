@@ -1,5 +1,6 @@
 package hhplus.tdd.infrastructure.lecture;
 
+
 import hhplus.tdd.domain.lecture.LectureApplications;
 import hhplus.tdd.domain.lecture.Lectures;
 import hhplus.tdd.domain.lecture.repository.LectureRepository;
