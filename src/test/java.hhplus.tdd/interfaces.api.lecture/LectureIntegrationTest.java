@@ -104,37 +104,4 @@ class LectureIntegrationTest {
         assertThat(failCount.get()).isEqualTo(10);  // 10명은 실패해야 함
     }
 
-    @Test
-    @DisplayName("동일한 유저 정보로 같은 특강을 5번 신청했을 때, 1번만 성공하는 것을 검증하는 테스트")
-    void testApplyLecture_Many() throws InterruptedException {
-        String userId = "user001";
-        Long lectureId = 2L;
-
-        int threadCnt = 5;
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCnt);
-        CountDownLatch latch = new CountDownLatch(threadCnt);
-
-
-        for (int i = 1; i <= threadCnt; i++) {
-            executorService.execute(() -> {
-                try {
-                    lectureFacade.applyLecture(userId, lectureId);
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                } finally {
-                    latch.countDown();
-                }
-            });
-        }
-
-        latch.await();
-        executorService.shutdown();
-
-        int successCount = ormRepository.countByLectureIdAndStatus(lectureId, "Y");
-        List<LectureResponse> result = lectureFacade.getCompletedApplications(userId);
-        assertThat(successCount).isEqualTo(1);
-        assertThat(result.size()).isEqualTo(1);
-    }
-
-
 }

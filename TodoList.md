@@ -24,7 +24,7 @@ H2와 TestContainer : H2는 데이터베이스에 독립적인 환경에서 수�
 - Users ↔ Lecture_Applications 1:N 하나의 사용자는 여러 특강에 신청할 수 있음
 - lectur의 정보를 담고있는 Lectures 테이블
 - Lectures ↔ Lecture_Applications  1:N  하나의 특강에 여러 신청자가 있을 수 있음.
-- user가 신청한 lecture 정보 (history)를 담고있는 Lecture_Application 테이블
+- user가 신청한 lectures 정보 (history)를 담고있는 Lecture_Application 테이블
 - 같은 사용자에게 여러 번의 특강 슬롯이 제공되지 않게 제한할 것인가? (UNIQUE KEY를 만들어 user_id와 lecture_id의 조합이 중복되지 않게함, 중복 시 에러 발생)
 - 30명 제한은 CHECK로 관리할 수 있으나 Service에서 비지니스로직으로 관리하는 것이 좋을 것 같음.
 - @Transactional 을 통해 동시성 관리, Lecture_Application 테이블에서 신청된 인원 카운트해 정원 초과 여부 미리 확인 후 신청 처리하도록
@@ -33,7 +33,35 @@ H2와 TestContainer : H2는 데이터베이스에 독립적인 환경에서 수�
 
 - repository를 인터페이스로 설계 
 - repository를 구현하는 repositoryImpl 작성.(비즈니스 로직과 데이터의 접근을 분리하기)
+- 이번 주차의 핵심 포인트는 DIP 그리고 DBLock! 
 
+- DIP를 어떻게 이룰 것인가?
+- UseCases 생성해서 다시 짜보기
+- facade 클래스 만들어서 각각 비즈니스 로직과 데이터 접근에만 집중하게하기 (**데이터 변환 로직 관리)
+
+- DBLOCK? 어떤 식으로? 
+- 낙관적 잠금(Optimistic Lock)과 비관적 잠금(Perssimistic Lock) 차이 알기 
+- Optimistic Lock (낙관적 잠금) : 데이터의 충돌이 드물다는 가정하에, 데이터 수정 시점에만 버전 검증, 트랜잭션 간 충돌이 발생하면 데이터 변경 허용하지 않고 예외 발생(롤백시킴, 재처리 로직 필요)
+```angular2html
+@Transactional
+public void applyLecture(Long lectureId) {
+    Lecture lectures = lectureRepository.findById(lectureId)
+            .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다."));
+
+    lectures.setCapacity(lectures.getCapacity() - 1);
+    lectureRepository.save(lectures); // 버전 충돌 발생 시 OptimisticLockException 발생
+}
+```
+- Perssimistic Lock(비관적 잠금) : 데이터의 동시성 문제를 방지하기 위해 데이터를 읽거나 수정할 때 데이터베이스에서 레코드를 잠금, 다른 트랜잭션 접근 시 대기하거나 예외 발생, 여러 트랜잭션이 서로 락을 기다리면 데드락 주의! 
+```angular2html
+@Transactional
+public void applyLecture(Long lectureId) {
+    Lecture lectures = entityManager.find(Lecture.class, lectureId, LockModeType.PESSIMISTIC_WRITE);
+    if (lectures == null) {
+        throw new IllegalArgumentException("강의를 찾을 수 없습니다.");
+    }
+}
+```
 [] 특강신청 API 작성
 - 특정 userId 로 선착순으로 제공되는 특강을 신청하는 API 를 작성합니다.
 - 동일한 신청자는 동일한 강의에 대해서 한 번의 수강 신청만 성공할 수 있습니다.

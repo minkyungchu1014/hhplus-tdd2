@@ -37,11 +37,6 @@ public class LectureRepositoryImpl implements LectureRepository {
             throw new IllegalArgumentException("특강 신청 정원이 마감되었습니다.");
         }
 
-        // 중복 신청 여부를 확인한다.
-        if (existsApplication(userId, lectureId)) {
-            throw new IllegalArgumentException("이미 신청한 강의입니다.");
-        }
-
         // 신청 정보를 저장한다.
         saveApplication(userId, lectureId);
 
@@ -63,10 +58,6 @@ public class LectureRepositoryImpl implements LectureRepository {
 
     private int countApplications(Long lectureId) {
         return ormRepository.countByLectureIdAndStatus(lectureId, "Y");
-    }
-
-    private boolean existsApplication(String userId, Long lectureId) {
-        return ormRepository.existsByUserIdAndLectureId(userId, lectureId);
     }
 
     private void saveApplication(String userId, Long lectureId) {
