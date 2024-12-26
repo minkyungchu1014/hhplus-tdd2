@@ -6,10 +6,15 @@
 
 -->
 필수 양식)
+
 interfaces.api : 406a58d7
+
 application : 39ea92dd
+
 domain : d58efbd4
+
 infrastructure : 6e726e63
+
 test code : a8d11451
 
 
